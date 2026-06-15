@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { z } from "zod";
 import {
   createHabitSchema,
   updateHabitSchema,
@@ -11,6 +12,7 @@ import {
   updateHabit,
   deleteHabit,
 } from "../services/habit.service";
+import { isValidDateString } from "../utils/date";
 
 export async function createHabitHandler(
   req: Request,
@@ -41,7 +43,21 @@ export async function getHabitsHandler(
   next: NextFunction
 ) {
   try {
-    const habits = await getHabitsForUser(req.user!.userId);
+    const today =
+      typeof req.query.date === "string"
+        ? req.query.date
+        : new Date().toISOString().split("T")[0];
+
+    const parsedDate = z
+      .string()
+      .refine(isValidDateString, "date must be YYYY-MM-DD")
+      .safeParse(today);
+
+    if (!parsedDate.success) {
+      return res.status(400).json({ message: "Invalid date query param" });
+    }
+
+    const habits = await getHabitsForUser(req.user!.userId, parsedDate.data);
     return res.status(200).json({ habits });
   } catch (error) {
     next(error);
