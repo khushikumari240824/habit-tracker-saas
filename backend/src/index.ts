@@ -5,6 +5,7 @@ import { checkDbConnection } from "./config/db";
 import authRoutes from "./routes/auth.routes";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
 import habitRoutes from "./routes/habit.routes";
+import logRoutes from "./routes/log.routes";
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/habits", habitRoutes);
-
+app.use("/api/logs", logRoutes);
 // ----------------------
 // Health Check
 // ----------------------
