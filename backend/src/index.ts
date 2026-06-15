@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { checkDbConnection } from "./config/db";
 import authRoutes from "./routes/auth.routes";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
+import habitRoutes from "./routes/habit.routes";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ const PORT = process.env.PORT || 5000;
 // ----------------------
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/habits", habitRoutes);
 
 // ----------------------
 // Health Check
