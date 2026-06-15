@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../config/db";
-import { habits } from "../db/schema";
+import { habits, habitLogs } from "../db/schema";
 import { CreateHabitInput, UpdateHabitInput } from "../validators/habit.validator";
 import { AuthError } from "./auth.service";
 
@@ -17,8 +17,26 @@ export async function createHabit(userId: number, input: CreateHabitInput) {
   return newHabit;
 }
 
-export async function getHabitsForUser(userId: number) {
-  return db.select().from(habits).where(eq(habits.userId, userId));
+export async function getHabitsForUser(userId: number, today: string) {
+  const userHabits = await db.select().from(habits).where(eq(habits.userId, userId));
+
+  if (userHabits.length === 0) return [];
+
+  const habitIds = userHabits.map((h) => h.id);
+
+  const todaysLogs = await db
+    .select({ habitId: habitLogs.habitId })
+    .from(habitLogs)
+    .where(
+      and(inArray(habitLogs.habitId, habitIds), eq(habitLogs.completedDate, today))
+    );
+
+  const completedTodayIds = new Set(todaysLogs.map((l) => l.habitId));
+
+  return userHabits.map((habit) => ({
+    ...habit,
+    completedToday: completedTodayIds.has(habit.id),
+  }));
 }
 
 export async function getHabitById(userId: number, habitId: number) {
@@ -40,7 +58,6 @@ export async function updateHabit(
   habitId: number,
   input: UpdateHabitInput
 ) {
-  // Ensure habit exists and belongs to this user
   await getHabitById(userId, habitId);
 
   const [updated] = await db
@@ -53,7 +70,6 @@ export async function updateHabit(
 }
 
 export async function deleteHabit(userId: number, habitId: number) {
-  // Ensure habit exists and belongs to this user
   await getHabitById(userId, habitId);
 
   await db
