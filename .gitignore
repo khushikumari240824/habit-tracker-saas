@@ -1,0 +1,26 @@
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env.local
+
+# Dependency directories
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build and IDE files
+.next/
+dist/
+out/
+build/
+.idea/
+.vscode/
+*.tsbuildinfo
+
+# OS metadata
+.DS_Store
+Thumbs.db
