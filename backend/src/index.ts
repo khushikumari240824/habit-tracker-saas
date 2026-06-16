@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
 import habitRoutes from "./routes/habit.routes";
 import logRoutes from "./routes/log.routes";
+import analyticsRoutes from "./routes/analytics.routes";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/logs", logRoutes);
+app.use("/api/analytics", analyticsRoutes);
 // ----------------------
 // Health Check
 // ----------------------
