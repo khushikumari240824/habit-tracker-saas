@@ -42,6 +42,32 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
 
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      setLoading(false);
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError("Password must contain at least one uppercase letter.");
+      setLoading(false);
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setError("Password must contain at least one lowercase letter.");
+      setLoading(false);
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError("Password must contain at least one number.");
+      setLoading(false);
+      return;
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      setError("Password must contain at least one special character.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await registerRequest({ name, email, password });
       saveAuth(res.token, res.user);
@@ -98,7 +124,7 @@ export default function RegisterPage() {
             <input
               type="text"
               required
-              placeholder="John Doe"
+              placeholder="Your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-xl glass-input px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
@@ -164,4 +190,4 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-}
+}
