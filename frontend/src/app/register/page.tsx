@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerRequest, ApiError } from "@/lib/api";
 import { saveAuth } from "@/lib/auth";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Eye, EyeOff, Check } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,6 +14,23 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+  const hasMinLength = password.length >= 6;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+  const strengthScore = [
+    hasMinLength,
+    hasUppercase,
+    hasLowercase,
+    hasNumber,
+    hasSpecial,
+  ].filter(Boolean).length;
 
   const [theme, setThemeState] = useState<"dark" | "light">("dark");
 
@@ -145,15 +162,126 @@ export default function RegisterPage() {
 
           <div>
             <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Password</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              placeholder="•••••••• (Min 6 characters)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl glass-input px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
+                className="w-full rounded-xl glass-input pl-4 pr-11 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors duration-200"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4.5 w-4.5" />
+                ) : (
+                  <Eye className="h-4.5 w-4.5" />
+                )}
+              </button>
+            </div>
+
+            {/* Strength Bar */}
+            {password.length > 0 && (
+              <div className="mt-2.5 space-y-1.5">
+                <div className="flex h-1.5 w-full gap-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      strengthScore <= 1
+                        ? "bg-red-500 w-1/5"
+                        : strengthScore <= 3
+                        ? "bg-amber-500 w-3/5"
+                        : strengthScore === 4
+                        ? "bg-indigo-500 w-4/5"
+                        : "bg-emerald-500 w-full"
+                    }`}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <span>Strength:</span>
+                  <span
+                    className={
+                      strengthScore <= 1
+                        ? "text-red-500 dark:text-red-400"
+                        : strengthScore <= 3
+                        ? "text-amber-500 dark:text-amber-400"
+                        : strengthScore === 4
+                        ? "text-indigo-500 dark:text-indigo-400"
+                        : "text-emerald-500 dark:text-emerald-400"
+                    }
+                  >
+                    {strengthScore <= 1
+                      ? "Weak"
+                      : strengthScore <= 3
+                      ? "Fair"
+                      : strengthScore === 4
+                      ? "Good"
+                      : "Strong"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Password Checklist */}
+            {(isPasswordFocused || password.length > 0) && (
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 rounded-xl border border-slate-200/50 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50 p-3.5 text-xs transition-all duration-300 animate-fadeIn">
+                <div className={`flex items-center gap-2 transition-colors duration-200 ${hasMinLength ? "text-emerald-500 dark:text-emerald-400 font-semibold" : "text-slate-400 dark:text-slate-500"}`}>
+                  <span className={`flex h-4.5 w-4.5 items-center justify-center rounded-full transition-all ${hasMinLength ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" : "bg-slate-200/50 dark:bg-slate-800/50 text-slate-400"}`}>
+                    {hasMinLength ? (
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    ) : (
+                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
+                    )}
+                  </span>
+                  <span>Min 6 characters</span>
+                </div>
+                <div className={`flex items-center gap-2 transition-colors duration-200 ${hasUppercase ? "text-emerald-500 dark:text-emerald-400 font-semibold" : "text-slate-400 dark:text-slate-500"}`}>
+                  <span className={`flex h-4.5 w-4.5 items-center justify-center rounded-full transition-all ${hasUppercase ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" : "bg-slate-200/50 dark:bg-slate-800/50 text-slate-400"}`}>
+                    {hasUppercase ? (
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    ) : (
+                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
+                    )}
+                  </span>
+                  <span>One uppercase (A-Z)</span>
+                </div>
+                <div className={`flex items-center gap-2 transition-colors duration-200 ${hasLowercase ? "text-emerald-500 dark:text-emerald-400 font-semibold" : "text-slate-400 dark:text-slate-500"}`}>
+                  <span className={`flex h-4.5 w-4.5 items-center justify-center rounded-full transition-all ${hasLowercase ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" : "bg-slate-200/50 dark:bg-slate-800/50 text-slate-400"}`}>
+                    {hasLowercase ? (
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    ) : (
+                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
+                    )}
+                  </span>
+                  <span>One lowercase (a-z)</span>
+                </div>
+                <div className={`flex items-center gap-2 transition-colors duration-200 ${hasNumber ? "text-emerald-500 dark:text-emerald-400 font-semibold" : "text-slate-400 dark:text-slate-500"}`}>
+                  <span className={`flex h-4.5 w-4.5 items-center justify-center rounded-full transition-all ${hasNumber ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" : "bg-slate-200/50 dark:bg-slate-800/50 text-slate-400"}`}>
+                    {hasNumber ? (
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    ) : (
+                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
+                    )}
+                  </span>
+                  <span>One number (0-9)</span>
+                </div>
+                <div className={`flex items-center gap-2 transition-colors duration-200 ${hasSpecial ? "text-emerald-500 dark:text-emerald-400 font-semibold" : "text-slate-400 dark:text-slate-500"}`}>
+                  <span className={`flex h-4.5 w-4.5 items-center justify-center rounded-full transition-all ${hasSpecial ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" : "bg-slate-200/50 dark:bg-slate-800/50 text-slate-400"}`}>
+                    {hasSpecial ? (
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    ) : (
+                      <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
+                    )}
+                  </span>
+                  <span>One special symbol</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {error && (
