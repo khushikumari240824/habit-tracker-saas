@@ -522,10 +522,7 @@ export default function HomePage() {
             <span className="text-sm font-bold text-slate-350">HabitFlow SaaS</span>
           </div>
 
-          <p className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-            Made with <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500/20" /> by Antigravity Design System © 2026.
-          </p>
-
+          
           <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
             <a href="#" className="hover:text-slate-350 transition-colors">Privacy</a>
             <a href="#" className="hover:text-slate-350 transition-colors">Terms</a>
