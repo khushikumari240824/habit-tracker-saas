@@ -519,7 +519,7 @@ export default function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-slate-900/15 dark:border-slate-900/80 light:border-slate-200 bg-slate-950/5 dark:bg-slate-950/80 backdrop-blur-md py-12">
+      <footer className="border-t border-slate-900/15 dark:border-slate-900/80 light:border-slate-200 bg-slate-950/5 dark:bg-black backdrop-blur-md py-12">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md">
