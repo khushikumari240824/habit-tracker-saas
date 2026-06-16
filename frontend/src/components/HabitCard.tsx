@@ -10,9 +10,10 @@ interface HabitCardProps {
   habit: Habit;
   onUpdate: (habit: Habit) => void;
   onDelete: (id: number) => void;
+  onEdit?: (habit: Habit) => void;
 }
 
-export default function HabitCard({ habit, onUpdate, onDelete }: HabitCardProps) {
+export default function HabitCard({ habit, onUpdate, onDelete, onEdit }: HabitCardProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,18 +88,40 @@ export default function HabitCard({ habit, onUpdate, onDelete }: HabitCardProps)
         </div>
 
         <div className="flex items-center gap-4">
-          <StreakBadge streak={habit.currentStreak} />
+          <div className="flex flex-col items-end gap-0.5">
+            <StreakBadge streak={habit.currentStreak} />
+            {habit.longestStreak > 0 && (
+              <span className="text-[9px] text-slate-500 font-bold tracking-wider uppercase pr-1">
+                Best: {habit.longestStreak} days
+              </span>
+            )}
+          </div>
           
-          <button
-            onClick={handleDelete}
-            disabled={loading}
-            aria-label="Delete habit"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
-          >
-            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(habit)}
+                disabled={loading}
+                aria-label="Edit habit"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all duration-200"
+              >
+                <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+            )}
+
+            <button
+              onClick={handleDelete}
+              disabled={loading}
+              aria-label="Delete habit"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-205"
+            >
+              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

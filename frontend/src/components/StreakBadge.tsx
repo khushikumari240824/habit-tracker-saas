@@ -17,14 +17,13 @@ export default function StreakBadge({ streak }: StreakBadgeProps) {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="h-3.5 w-3.5 animate-pulse text-amber-500"
+          className="h-4 w-4 animate-pulse text-amber-500"
           aria-hidden="true"
         >
-          <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path d="M17.657 11.292c-.11-.22-.22-.44-.33-.66a9.04 9.04 0 00-1.89-2.67C13.887 6.4 12 4.192 12 2c0 1.65-.825 3.3-1.65 4.95-1.254 2.508-3.036 4.41-3.036 6.825 0 3.3 2.7 6.225 6 6.225s6-2.925 6-6.225c0-1.925-1.122-3.41-1.657-4.483z" />
         </svg>
       ) : (
-        <span aria-hidden="true" className="text-slate-600">—</span>
+        <span aria-hidden="true" className="text-slate-500 font-bold">-</span>
       )}
       <span>{streak} day streak</span>
     </div>

@@ -2,11 +2,21 @@
 
 import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Habit } from "@/types/habit";
-import { getHabits, createHabit, ApiError } from "@/lib/api";
-import { getLocalDateString, getUser, clearAuth, isAuthenticated } from "@/lib/auth";
+import { getHabits, createHabit, updateHabit, ApiError } from "@/lib/api";
+import { getLocalDateString, getUser, isAuthenticated } from "@/lib/auth";
 import HabitCard from "@/components/HabitCard";
+import AppLayout from "@/components/AppLayout";
+import {
+  Plus,
+  TrendingUp,
+  Flame,
+  Award,
+  CheckCircle,
+  X,
+  PlusCircle,
+  Sparkles
+} from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -14,8 +24,19 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Modals state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [activeEditHabit, setActiveEditHabit] = useState<Habit | null>(null);
+
+  // Form inputs
   const [newHabitName, setNewHabitName] = useState("");
+  const [newHabitDesc, setNewHabitDesc] = useState("");
   const [creating, setCreating] = useState(false);
+
+  const [editHabitName, setEditHabitName] = useState("");
+  const [editHabitDesc, setEditHabitDesc] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   const user = getUser();
   const today = getLocalDateString();
@@ -25,14 +46,12 @@ export default function DashboardPage() {
       router.replace("/login");
       return;
     }
-
     loadHabits();
   }, []);
 
   async function loadHabits() {
     setLoading(true);
     setError(null);
-
     try {
       const res = await getHabits(today);
       setHabits(res.habits);
@@ -49,15 +68,48 @@ export default function DashboardPage() {
 
     setCreating(true);
     setError(null);
-
     try {
-      const res = await createHabit({ name: newHabitName.trim() });
+      const res = await createHabit({
+        name: newHabitName.trim(),
+        description: newHabitDesc.trim() || undefined,
+      });
       setHabits((prev) => [...prev, { ...res.habit, completedToday: false }]);
+      
+      // Reset form
       setNewHabitName("");
+      setNewHabitDesc("");
+      setCreateModalOpen(false);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to create habit");
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleEditSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!activeEditHabit || !editHabitName.trim()) return;
+
+    setUpdating(true);
+    setError(null);
+    try {
+      const res = await updateHabit(activeEditHabit.id, {
+        name: editHabitName.trim(),
+        description: editHabitDesc.trim() || "",
+      });
+      setHabits((prev) =>
+        prev.map((h) =>
+          h.id === activeEditHabit.id
+            ? { ...h, name: res.habit.name, description: res.habit.description }
+            : h
+        )
+      );
+      setEditModalOpen(false);
+      setActiveEditHabit(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to update habit");
+    } finally {
+      setUpdating(false);
     }
   }
 
@@ -69,135 +121,277 @@ export default function DashboardPage() {
     setHabits((prev) => prev.filter((h) => h.id !== id));
   }
 
-  function handleLogout() {
-    clearAuth();
-    router.push("/login");
+  function openEditModal(habit: Habit) {
+    setActiveEditHabit(habit);
+    setEditHabitName(habit.name);
+    setEditHabitDesc(habit.description || "");
+    setEditModalOpen(true);
   }
 
+  // Calculate dynamic greeting
+  const getGreeting = () => {
+    const hr = new Date().getHours();
+    if (hr < 12) return "Good morning";
+    if (hr < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  // Stats calculation
   const completedCount = habits.filter((h) => h.completedToday).length;
   const totalCount = habits.length;
   const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  
+  const activeStreaksCount = habits.filter((h) => h.currentStreak > 0).length;
+  const longestStreak = habits.length > 0 ? Math.max(...habits.map((h) => h.longestStreak)) : 0;
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* Background glowing decorations */}
-      <div className="absolute -top-60 -left-60 h-[500px] w-[500px] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none" />
-      <div className="absolute top-80 -right-60 h-[500px] w-[500px] rounded-full bg-purple-500/5 blur-[120px] pointer-events-none" />
-
-      {/* Main Container */}
-      <div className="mx-auto max-w-3xl px-4 py-10 relative">
-        <header className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-slate-800/80 pb-6">
+    <AppLayout>
+      <div className="space-y-8 max-w-4xl mx-auto">
+        
+        {/* Welcome Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-900/60 pb-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-indigo-500 animate-pulse" />
               <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
-                My Dashboard
+                {getGreeting()}, {user?.name.split(" ")[0] || "Khushi"}!
               </h1>
             </div>
             <p className="mt-1 text-sm text-slate-400 font-medium">
-              {new Date().toLocaleDateString(undefined, {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              })}
+              Ready to focus and level up your streaks today?
             </p>
           </div>
 
-          <div className="flex items-center gap-4 text-sm">
-            <span className="rounded-lg bg-slate-900/60 border border-slate-800 px-3 py-1.5 font-medium text-slate-300">
-              ⚡ {user?.name}
-            </span>
-            <Link
-              href="/analytics"
-              className="rounded-lg bg-indigo-600/10 border border-indigo-500/30 px-3 py-1.5 font-semibold text-indigo-400 transition-all duration-300 hover:bg-indigo-600/20 hover:text-indigo-300"
-            >
-              Analytics
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="rounded-lg bg-slate-800/50 border border-slate-700/60 px-3 py-1.5 font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300"
-            >
-              Log out
-            </button>
-          </div>
-        </header>
-
-        {/* New Habit Form */}
-        <form onSubmit={handleCreate} className="mb-8 flex gap-3 rounded-2xl border border-slate-800/80 bg-slate-900/30 p-4 backdrop-blur-md">
-          <input
-            type="text"
-            placeholder="Build a new habit (e.g. Read 10 pages, Meditate...)"
-            value={newHabitName}
-            onChange={(e) => setNewHabitName(e.target.value)}
-            className="flex-1 rounded-xl border border-slate-800/80 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300"
-          />
           <button
-            type="submit"
-            disabled={creating || !newHabitName.trim()}
-            className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/10 hover:scale-[1.02] hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+            onClick={() => setCreateModalOpen(true)}
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 hover:scale-[1.02] hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] transition-all duration-300"
           >
-            {creating ? "Adding..." : "Add Habit"}
+            <Plus className="h-4 w-4" />
+            Add New Habit
           </button>
-        </form>
+        </div>
 
         {error && (
-          <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
             {error}
           </div>
         )}
 
-        {/* Completion Progress Bar */}
+        {/* Stats Cards Section */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <StatCard
+            label="Total Habits"
+            value={totalCount}
+            icon={<CheckCircle className="h-5 w-5 text-indigo-400" />}
+            subtitle="Registered items"
+          />
+          <StatCard
+            label="Active Streaks"
+            value={activeStreaksCount}
+            icon={<Flame className="h-5 w-5 text-amber-500" />}
+            subtitle="Active multipliers"
+          />
+          <StatCard
+            label="Longest Streak"
+            value={longestStreak}
+            icon={<Award className="h-5 w-5 text-rose-400" />}
+            subtitle="Personal record"
+          />
+          <StatCard
+            label="Completion Rate"
+            value={`${completionPercentage}%`}
+            icon={<TrendingUp className="h-5 w-5 text-emerald-400" />}
+            subtitle="Today's velocity"
+          />
+        </div>
+
+        {/* Today's Progress Bar */}
         {!loading && habits.length > 0 && (
-          <div className="mb-8 rounded-2xl border border-slate-800/80 bg-slate-900/30 p-5 backdrop-blur-md shadow-md">
+          <div className="rounded-2xl border border-slate-900 bg-slate-900/15 p-5 backdrop-blur-md">
             <div className="mb-2.5 flex items-center justify-between text-sm">
-              <span className="font-semibold text-slate-300">Today's Progress</span>
-              <span className="font-bold text-indigo-400">
-                {completedCount}/{totalCount} completed ({completionPercentage}%)
+              <span className="font-bold text-slate-300">Today's Habit Checklist</span>
+              <span className="font-extrabold text-indigo-400">
+                {completedCount}/{totalCount} Done ({completionPercentage}%)
               </span>
             </div>
-            <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-950">
+            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-950">
               <div
-                className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 shadow-[0_0_8px_rgba(99,102,241,0.5)] transition-all duration-500 ease-out"
+                className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 shadow-[0_0_12px_rgba(99,102,241,0.55)] transition-all duration-500 ease-out"
                 style={{ width: `${completionPercentage}%` }}
               />
             </div>
           </div>
         )}
 
-        {/* Habits List */}
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
-            <svg className="h-8 w-8 animate-spin text-indigo-500 mb-3" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <p className="text-sm font-medium">Loading your habits...</p>
-          </div>
-        ) : habits.length === 0 ? (
-          <div className="rounded-2xl border border-slate-800/60 bg-slate-900/10 p-10 text-center backdrop-blur-sm">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900/80 border border-slate-800">
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 text-slate-500" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+        {/* Habits Checklist */}
+        <div>
+          <h2 className="text-xs font-extrabold text-slate-400 tracking-wider uppercase mb-4">
+            Daily Routines
+          </h2>
+
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-20 rounded-2xl border border-slate-900 bg-slate-950/20 animate-pulse" />
+              ))}
             </div>
-            <h3 className="text-lg font-semibold text-slate-300">No habits yet</h3>
-            <p className="mt-1 text-sm text-slate-500 max-w-sm mx-auto">
-              Create your very first habit in the box above to begin tracking and build your streaks!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {habits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                onUpdate={handleUpdate}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        )}
+          ) : habits.length === 0 ? (
+            <div className="rounded-2xl border border-slate-800/60 bg-slate-900/10 p-10 text-center backdrop-blur-sm">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900/80 border border-slate-800">
+                <PlusCircle className="h-6 w-6 text-slate-500" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-350">No habits tracked yet</h3>
+              <p className="mt-1 text-xs text-slate-500 max-w-xs mx-auto leading-relaxed font-semibold">
+                Start your journey by adding a customized habit like "Drink Water", "Read books", or "Gym training".
+              </p>
+              <button
+                onClick={() => setCreateModalOpen(true)}
+                className="mt-5 rounded-xl bg-indigo-600/10 border border-indigo-500/30 px-5 py-2.5 text-xs font-bold text-indigo-400 hover:bg-indigo-650 hover:text-indigo-300 transition-all"
+              >
+                Create First Habit
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {habits.map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  onUpdate={handleUpdate}
+                  onDelete={handleDelete}
+                  onEdit={openEditModal}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* CREATE MODAL */}
+      {createModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCreateModalOpen(false)} />
+          
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl z-10">
+            <button
+              onClick={() => setCreateModalOpen(false)}
+              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-5 w-5 text-indigo-400" />
+                <h3 className="text-lg font-bold text-slate-200">Create New Habit</h3>
+              </div>
+              <p className="text-xs text-slate-500 font-semibold">Add a routine to track consistency and unlock badge rewards</p>
+            </div>
+
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Habit Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Read 15 pages, Workout..."
+                  value={newHabitName}
+                  onChange={(e) => setNewHabitName(e.target.value)}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Description (Optional)</label>
+                <textarea
+                  placeholder="Details to motivate you"
+                  value={newHabitDesc}
+                  onChange={(e) => setNewHabitDesc(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={creating || !newHabitName.trim()}
+                className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 hover:scale-[1.01] hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-55"
+              >
+                {creating ? "Adding routine..." : "Add Habit"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT MODAL */}
+      {editModalOpen && activeEditHabit && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setActiveEditHabit(null); }} />
+          
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl z-10">
+            <button
+              onClick={() => { setEditModalOpen(false); setActiveEditHabit(null); }}
+              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+
+            <div className="mb-6">
+              <h3 className="text-lg font-bold text-slate-200">Edit Habit Details</h3>
+              <p className="text-xs text-slate-500 font-semibold mt-1">Modify settings for {activeEditHabit.name}</p>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Habit Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Read 15 pages"
+                  value={editHabitName}
+                  onChange={(e) => setEditHabitName(e.target.value)}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Description</label>
+                <textarea
+                  placeholder="Details"
+                  value={editHabitDesc}
+                  onChange={(e) => setEditHabitDesc(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={updating || !editHabitName.trim()}
+                className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 hover:scale-[1.01] hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-55"
+              >
+                {updating ? "Saving adjustments..." : "Save Changes"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </AppLayout>
+  );
+}
+
+function StatCard({ label, value, icon, subtitle }: { label: string; value: number | string; icon: React.ReactNode; subtitle: string }) {
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-900 bg-slate-900/25 p-5 backdrop-blur-md shadow-sm transition-all duration-300 hover:border-slate-800 hover:shadow-[0_8px_20px_-8px_rgba(99,102,241,0.1)]">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-extrabold text-slate-500 tracking-wider uppercase">{label}</span>
+        {icon}
+      </div>
+      <p className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight transition-transform duration-300 group-hover:scale-105 origin-left">
+        {value}
+      </p>
+      <span className="text-[9px] text-slate-600 font-bold block mt-1 tracking-wider uppercase">{subtitle}</span>
     </div>
   );
-}
+}
