@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerRequest, ApiError } from "@/lib/api";
 import { saveAuth } from "@/lib/auth";
+import { Sun, Moon } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,6 +14,28 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [theme, setThemeState] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const initialTheme = (localStorage.getItem("theme_preference") as "dark" | "light") || "dark";
+      setThemeState(initialTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setThemeState(nextTheme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("theme_preference", nextTheme);
+      if (nextTheme === "light") {
+        document.documentElement.classList.add("light");
+      } else {
+        document.documentElement.classList.remove("light");
+      }
+    }
+  };
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -38,51 +61,64 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 theme-bg theme-text">
       {/* Dynamic Background Blobs */}
       <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-indigo-700/10 blur-[128px] pointer-events-none" />
       <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-purple-700/10 blur-[128px] pointer-events-none" />
 
-      <div className="relative w-full max-w-md rounded-2xl border border-slate-800/80 bg-slate-900/40 backdrop-blur-xl p-8 shadow-[0_0_50px_-12px_rgba(99,102,241,0.15)] hover:border-slate-700/50 transition-all duration-500">
+      {/* Floating Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        aria-label="Toggle Theme"
+        className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-xl glass-input text-slate-400 hover:text-slate-200 transition-all duration-300 z-50"
+      >
+        {theme === "dark" ? (
+          <Sun className="h-4.5 w-4.5 text-amber-400" />
+        ) : (
+          <Moon className="h-4.5 w-4.5 text-indigo-400" />
+        )}
+      </button>
+
+      <div className="relative w-full max-w-md rounded-2xl glass-card p-8 shadow-[0_0_50px_-12px_rgba(99,102,241,0.15)]">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.3)]">
             <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 text-white" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
-          <h1 className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent">
+          <h1 className="bg-gradient-to-r dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 light:from-indigo-600 light:to-purple-600 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent">
             Create Account
           </h1>
-          <p className="mt-2 text-sm text-slate-400">Join us to build lasting daily habits</p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-semibold">Join us to build lasting daily habits</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Full Name</label>
+            <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Full Name</label>
             <input
               type="text"
               required
               placeholder="John Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-800/80 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300"
+              className="w-full rounded-xl glass-input px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Email Address</label>
+            <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Email Address</label>
             <input
               type="email"
               required
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-slate-800/80 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300"
+              className="w-full rounded-xl glass-input px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+            <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Password</label>
             <input
               type="password"
               required
@@ -90,7 +126,7 @@ export default function RegisterPage() {
               placeholder="•••••••• (Min 6 characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-slate-800/80 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300"
+              className="w-full rounded-xl glass-input px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
@@ -103,7 +139,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:scale-[1.02] hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+            className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:scale-[1.02] hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -119,9 +155,9 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-400">
+        <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400 font-semibold">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-indigo-400 hover:text-indigo-300 hover:underline">
+          <Link href="/login" className="font-semibold text-indigo-555 dark:text-indigo-400 hover:underline">
             Log in
           </Link>
         </p>

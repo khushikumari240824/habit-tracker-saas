@@ -113,27 +113,27 @@ export default function AchievementsPage() {
     <AppLayout>
       <div className="space-y-8 max-w-4xl mx-auto">
         {/* Achievements Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-900 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800/20 dark:border-slate-900/60 light:border-slate-200/80 pb-6">
           <div>
             <div className="flex items-center gap-2">
               <Award className="h-6 w-6 text-indigo-400" />
-              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 via-slate-300 to-slate-300 dark:from-slate-100 dark:to-slate-300 light:from-slate-900 light:to-slate-700 bg-clip-text text-transparent">
                 Milestones & Badges
               </h1>
             </div>
-            <p className="mt-1 text-sm text-slate-400 font-medium">
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-400 light:text-slate-650 font-medium">
               Gamify your routines. Complete habits to secure XP and level trophies.
             </p>
           </div>
 
-          <div className="flex items-center gap-4 bg-slate-900/40 border border-slate-800 rounded-xl px-5 py-3 shadow-md">
+          <div className="flex items-center gap-4 glass-card rounded-xl px-5 py-3 shadow-md">
             <div className="text-right">
-              <p className="text-xs font-bold text-slate-400 uppercase">Total Score</p>
+              <p className="text-xs font-bold text-slate-500 uppercase">Total Score</p>
               <p className="text-xl font-extrabold text-indigo-400 mt-0.5">{totalXP} XP</p>
             </div>
-            <div className="h-8 w-px bg-slate-850" />
+            <div className="h-8 w-px bg-slate-800/30 dark:bg-slate-850 light:bg-slate-200" />
             <div className="text-left">
-              <p className="text-xs font-bold text-slate-400 uppercase">Unlocked</p>
+              <p className="text-xs font-bold text-slate-500 uppercase">Unlocked</p>
               <p className="text-xl font-extrabold text-amber-500 mt-0.5">{unlockedCount} / 6</p>
             </div>
           </div>
@@ -152,10 +152,10 @@ export default function AchievementsPage() {
               return (
                 <div
                   key={badge.id}
-                  className={`group relative overflow-hidden rounded-2xl border p-5 backdrop-blur-md transition-all duration-300 ${
+                  className={`group relative overflow-hidden rounded-2xl glass-card p-5 transition-all duration-300 ${
                     isUnlocked
-                      ? `bg-slate-900/35 border-slate-800/80 hover:border-indigo-500/35 shadow-[0_4px_30px_-5px_rgba(99,102,241,0.08)]`
-                      : "bg-slate-950/20 border-slate-900/80 opacity-55 hover:opacity-75"
+                      ? "opacity-100 hover:border-indigo-500/35 shadow-[0_4px_30px_-5px_rgba(99,102,241,0.08)]"
+                      : "opacity-50 hover:opacity-75"
                   }`}
                 >
                   {/* Badge Circle graphic */}
@@ -163,32 +163,32 @@ export default function AchievementsPage() {
                     <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-2xl border transition-all duration-300 shadow-md ${
                       isUnlocked
                         ? `bg-gradient-to-br ${badge.color} border-slate-700/60 scale-105`
-                        : "bg-slate-900 border-slate-850 text-slate-600 grayscale"
+                        : "bg-slate-900/40 dark:bg-slate-900 light:bg-slate-200/60 border-slate-800/40 dark:border-slate-800 light:border-slate-300 text-slate-500 grayscale"
                     }`}>
                       {badge.icon}
                     </div>
 
                     <div className="flex-1">
-                      <h3 className={`text-sm font-bold tracking-tight ${isUnlocked ? "text-slate-200" : "text-slate-500"}`}>
+                      <h3 className={`text-sm font-bold tracking-tight ${isUnlocked ? "text-slate-200 dark:text-slate-200 light:text-slate-800" : "text-slate-500"}`}>
                         {badge.name}
                       </h3>
                       <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase ${
                         isUnlocked 
                           ? "bg-emerald-500/10 text-emerald-400" 
-                          : "bg-slate-900 text-slate-600"
+                          : "bg-slate-900 dark:bg-slate-900 light:bg-slate-200 text-slate-500"
                       }`}>
                         {isUnlocked ? "Unlocked" : "Locked"}
                       </span>
                     </div>
                   </div>
 
-                  <p className={`text-xs leading-relaxed font-semibold ${isUnlocked ? "text-slate-400" : "text-slate-655"}`}>
+                  <p className={`text-xs leading-relaxed font-semibold ${isUnlocked ? "text-slate-400 dark:text-slate-400 light:text-slate-600" : "text-slate-500"}`}>
                     {badge.desc}
                   </p>
                   
-                  <div className="mt-4 pt-3 border-t border-slate-900/60 flex items-center justify-between text-[10px] font-bold text-slate-500">
+                  <div className="mt-4 pt-3 border-t border-slate-800/20 dark:border-slate-900/60 light:border-slate-200/60 flex items-center justify-between text-[10px] font-bold text-slate-500">
                     <span className="uppercase">Requirement</span>
-                    <span className={isUnlocked ? "text-indigo-400" : "text-slate-600"}>{badge.req}</span>
+                    <span className={isUnlocked ? "text-indigo-400" : "text-slate-500"}>{badge.req}</span>
                   </div>
                 </div>
               );
@@ -206,15 +206,15 @@ export default function AchievementsPage() {
 
             <div className="space-y-4">
               {trophies.map((trophy, index) => (
-                <div key={index} className="rounded-2xl border border-slate-900 bg-slate-900/20 p-5 backdrop-blur-md">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-350 mb-2">
+                <div key={index} className="rounded-2xl glass-card p-5 backdrop-blur-md">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-350 light:text-slate-600 mb-2">
                     <div>
-                      <p className="text-sm font-bold text-slate-200">{trophy.name}</p>
+                      <p className="text-sm font-bold text-slate-200 dark:text-slate-200 light:text-slate-800">{trophy.name}</p>
                       <p className="text-[11px] text-slate-500 mt-0.5 font-semibold">{trophy.desc}</p>
                     </div>
                     <span className="text-indigo-400">{trophy.target}</span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-slate-950 overflow-hidden relative">
+                  <div className="h-2 w-full rounded-full bg-slate-950 dark:bg-slate-950 light:bg-slate-200/80 overflow-hidden relative">
                     <div
                       className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 shadow-[0_0_8px_rgba(99,102,241,0.5)] transition-all duration-500"
                       style={{ width: `${trophy.progress}%` }}
@@ -226,21 +226,21 @@ export default function AchievementsPage() {
           </div>
 
           {/* Level guidelines card */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/35 p-6 backdrop-blur-md flex flex-col justify-between">
+          <div className="rounded-2xl glass-card p-6 backdrop-blur-md flex flex-col justify-between">
             <div>
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-4">
                 <Zap className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-200">How to earn XP?</h3>
-              <p className="mt-2 text-xs text-slate-400 leading-relaxed font-semibold">
+              <h3 className="text-sm font-bold text-slate-200 dark:text-slate-200 light:text-slate-800">How to earn XP?</h3>
+              <p className="mt-2 text-xs text-slate-400 dark:text-slate-400 light:text-slate-650 leading-relaxed font-semibold">
                 You obtain **+10 XP** for each habit checked off. If you level up (every 100 cumulative XP), you unlock special multipliers and new badges.
               </p>
             </div>
             
-            <div className="mt-6 pt-4 border-t border-slate-900 space-y-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="mt-6 pt-4 border-t border-slate-800/20 dark:border-slate-900 light:border-slate-200/80 space-y-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               <div className="flex justify-between">
                 <span>Current Level</span>
-                <span className="text-slate-300">Level {profile.level}</span>
+                <span className="text-slate-350 dark:text-slate-300 light:text-slate-700">Level {profile.level}</span>
               </div>
               <div className="flex justify-between">
                 <span>Remaining to Lvl {profile.level + 1}</span>

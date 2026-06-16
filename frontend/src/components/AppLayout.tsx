@@ -115,13 +115,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center theme-bg theme-text">
         <div className="flex flex-col items-center gap-3">
           <svg className="h-10 w-10 animate-spin text-indigo-500" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <p className="text-slate-400 text-sm font-semibold tracking-wider">Syncing dashboard...</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold tracking-wider">Syncing dashboard...</p>
         </div>
       </div>
     );
@@ -147,9 +147,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-slate-950 to-indigo-950/80 text-slate-100 antialiased">
+    <div className="flex min-h-screen theme-bg theme-text antialiased">
       {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex w-64 flex-col border-r border-slate-900/80 bg-slate-950/50 backdrop-blur-xl p-6 shrink-0 relative">
+      <aside className="hidden md:flex w-64 flex-col border-r theme-sidebar backdrop-blur-xl p-6 shrink-0 relative">
         <div className="flex items-center gap-2.5 mb-10 pl-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_15px_rgba(99,102,241,0.4)]">
             <Zap className="h-5 w-5 text-white" />
@@ -182,25 +182,25 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* Sidebar Footer / User summary */}
-        <div className="border-t border-slate-900/80 pt-6">
+        <div className="border-t border-slate-800/30 dark:border-slate-900/80 light:border-slate-200/80 pt-6">
           <div className="flex items-center gap-3">
             <img
               src={avatar}
               alt="Avatar"
-              className="h-10 w-10 rounded-full border border-slate-800 bg-slate-900 object-cover"
+              className="h-10 w-10 rounded-full border border-slate-800/80 dark:border-slate-800 light:border-slate-200 bg-slate-900/40 object-cover"
               onError={(e) => {
                 // Fallback to placeholder avatar
                 (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${user?.name || "avatar"}`;
               }}
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-200 truncate">{user?.name || "Khushi Kumari"}</p>
-              <p className="text-[11px] text-slate-500 font-medium truncate">{user?.email || "khushi@example.com"}</p>
+              <p className="text-sm font-bold text-slate-200 dark:text-slate-200 light:text-slate-800 truncate">{user?.name || "Khushi Kumari"}</p>
+              <p className="text-[11px] text-slate-500 truncate">{user?.email || "khushi@example.com"}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900/40 border border-slate-800 py-2.5 text-xs font-semibold text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900/40 dark:bg-slate-900/40 light:bg-slate-200/50 border border-slate-800 dark:border-slate-800 light:border-slate-200 py-2.5 text-xs font-semibold text-slate-400 dark:text-slate-400 light:text-slate-600 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300"
           >
             <LogOut className="h-3.5 w-3.5" />
             Log out
@@ -211,26 +211,26 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
-        <header className="h-16 border-b border-slate-900/60 bg-slate-950/20 backdrop-blur-md px-6 flex items-center justify-between shrink-0 relative z-20">
+        <header className="h-16 border-b theme-header backdrop-blur-md px-6 flex items-center justify-between shrink-0 relative z-20">
           {/* Mobile hamburger menu toggle */}
           <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+              className="md:hidden flex h-10 w-10 items-center justify-center rounded-xl glass-input text-slate-400 hover:text-slate-200 transition-colors"
             >
               <Menu className="h-5 w-5" />
             </button>
 
             {/* Level Tracker Progress bar */}
-            <div className="flex items-center gap-2.5 bg-slate-900/40 border border-slate-800/80 rounded-xl px-4 py-1.5 shadow-sm max-w-xs sm:max-w-md">
+            <div className="flex items-center gap-2.5 glass-card rounded-xl px-4 py-1.5 shadow-sm max-w-xs sm:max-w-md">
               <span className="flex h-5 w-5 items-center justify-center rounded bg-indigo-500/20 text-indigo-400 text-xs font-extrabold animate-pulse">
                 ⚡
               </span>
               <div className="text-left shrink-0">
-                <span className="text-[11px] font-extrabold text-slate-300">Level {xpData.level}</span>
+                <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-300 light:text-slate-700">Level {xpData.level}</span>
                 <span className="text-[10px] text-slate-500 font-semibold ml-2">({xpInCurrentLevel}/100 XP)</span>
               </div>
-              <div className="h-1.5 w-20 sm:w-28 rounded-full bg-slate-950 overflow-hidden shrink-0">
+              <div className="h-1.5 w-20 sm:w-28 rounded-full bg-slate-950 dark:bg-slate-950 light:bg-slate-200/80 overflow-hidden shrink-0">
                 <div
                   className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-[0_0_8px_rgba(99,102,241,0.5)] transition-all duration-500 ease-out"
                   style={{ width: `${levelProgressPercent}%` }}
@@ -245,7 +245,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <button
               onClick={toggleTheme}
               aria-label="Toggle Theme"
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all duration-300"
+              className="flex h-10 w-10 items-center justify-center rounded-xl glass-input text-slate-400 hover:text-slate-200 transition-all duration-300"
             >
               {theme === "dark" ? (
                 <Sun className="h-4.5 w-4.5 text-amber-400" />
@@ -261,7 +261,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   setNotificationsOpen(!notificationsOpen);
                   if (!notificationsOpen) markAllRead();
                 }}
-                className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all duration-300"
+                className="relative flex h-10 w-10 items-center justify-center rounded-xl glass-input text-slate-400 hover:text-slate-205 transition-all duration-300"
               >
                 <Bell className="h-4.5 w-4.5" />
                 {unreadCount > 0 && (
@@ -275,10 +275,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-3 w-80 rounded-2xl border border-slate-800 bg-slate-950/95 shadow-2xl p-4 backdrop-blur-xl z-50"
+                    className="absolute right-0 mt-3 w-80 rounded-2xl border border-slate-800/80 dark:border-slate-800/85 light:border-slate-200 bg-slate-950/95 dark:bg-slate-950/95 light:bg-white shadow-2xl p-4 backdrop-blur-xl z-50"
                   >
-                    <div className="flex items-center justify-between border-b border-slate-900 pb-2 mb-3">
-                      <span className="text-xs font-extrabold text-slate-300 uppercase tracking-wide">Notifications</span>
+                    <div className="flex items-center justify-between border-b border-slate-800/20 dark:border-slate-900/80 light:border-slate-200/80 pb-2 mb-3">
+                      <span className="text-xs font-extrabold text-slate-300 dark:text-slate-300 light:text-slate-700 uppercase tracking-wide">Notifications</span>
                       <span className="text-[10px] font-semibold text-slate-500">Real-time alerts</span>
                     </div>
 
@@ -288,11 +288,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
                           key={n.id}
                           className={`p-2.5 rounded-xl border transition-colors ${
                             n.read 
-                              ? "bg-slate-900/10 border-transparent" 
-                              : "bg-indigo-600/5 border-indigo-500/20"
+                              ? "bg-slate-900/10 dark:bg-slate-900/10 light:bg-slate-100/40 border-transparent" 
+                              : "bg-indigo-600/5 dark:bg-indigo-600/5 light:bg-indigo-500/5 border-indigo-500/20"
                           }`}
                         >
-                          <p className="text-xs text-slate-300 font-medium leading-normal">{n.text}</p>
+                          <p className="text-xs text-slate-350 dark:text-slate-300 light:text-slate-700 font-medium leading-normal">{n.text}</p>
                           <span className="text-[9px] text-slate-500 font-semibold mt-1 block">{n.time}</span>
                         </div>
                       ))}
@@ -305,17 +305,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
             {/* Profile Avatar Quicklink */}
             <Link
               href="/profile"
-              className="flex items-center gap-2 border border-slate-800 hover:border-indigo-500/30 rounded-xl p-1.5 pr-2.5 bg-slate-900/20 hover:bg-slate-900/40 transition-all duration-300"
+              className="flex items-center gap-2 border border-slate-800/20 dark:border-slate-800/80 light:border-slate-200/80 hover:border-indigo-500/30 rounded-xl p-1.5 pr-2.5 bg-slate-900/10 dark:bg-slate-900/20 light:bg-white/45 transition-all duration-300"
             >
               <img
                 src={avatar}
                 alt="Avatar"
-                className="h-7 w-7 rounded-full bg-slate-900 object-cover border border-slate-800"
+                className="h-7 w-7 rounded-full bg-slate-900 object-cover border border-slate-800/40 dark:border-slate-800 light:border-slate-200"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${user?.name || "avatar"}`;
                 }}
               />
-              <span className="hidden sm:inline text-xs font-bold text-slate-300 truncate max-w-[80px]">
+              <span className="hidden sm:inline text-xs font-bold text-slate-300 dark:text-slate-300 light:text-slate-700 truncate max-w-[80px]">
                 {user?.name.split(" ")[0]}
               </span>
             </Link>
@@ -341,7 +341,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed inset-y-0 left-0 w-72 bg-slate-950 border-r border-slate-900 z-50 p-6 flex flex-col md:hidden"
+                className="fixed inset-y-0 left-0 w-72 theme-sidebar border-r z-50 p-6 flex flex-col md:hidden"
               >
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-2 pl-2">
@@ -354,7 +354,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   </div>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg glass-card text-slate-400 hover:text-slate-205"
                   >
                     <X className="h-4.5 w-4.5" />
                   </button>
@@ -384,24 +384,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </nav>
 
                 {/* Mobile sidebar Footer */}
-                <div className="border-t border-slate-900/80 pt-6">
+                <div className="border-t border-slate-800/35 dark:border-slate-900/80 light:border-slate-200/80 pt-6">
                   <div className="flex items-center gap-3">
                     <img
                       src={avatar}
                       alt="Avatar"
-                      className="h-10 w-10 rounded-full border border-slate-800 bg-slate-900 object-cover"
+                      className="h-10 w-10 rounded-full border border-slate-800 dark:border-slate-800 light:border-slate-200 bg-slate-900 object-cover"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${user?.name || "avatar"}`;
                       }}
                     />
                     <div>
-                      <p className="text-sm font-bold text-slate-200 truncate">{user?.name || "Khushi Kumari"}</p>
+                      <p className="text-sm font-bold text-slate-200 dark:text-slate-200 light:text-slate-800 truncate">{user?.name || "Khushi Kumari"}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email || "khushi@example.com"}</p>
                     </div>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900/40 border border-slate-800 py-2.5 text-xs font-semibold text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900/40 dark:bg-slate-900/40 light:bg-slate-200/50 border border-slate-800 dark:border-slate-800 light:border-slate-200 py-2.5 text-xs font-semibold text-slate-400 dark:text-slate-400 light:text-slate-600 hover:bg-red-500/10 hover:text-red-400 transition-all"
                   >
                     <LogOut className="h-3.5 w-3.5" />
                     Log out

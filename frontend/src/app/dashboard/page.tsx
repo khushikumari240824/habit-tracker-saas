@@ -149,15 +149,15 @@ export default function DashboardPage() {
       <div className="space-y-8 max-w-4xl mx-auto">
         
         {/* Welcome Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-900/60 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800/20 dark:border-slate-900/60 light:border-slate-200/80 pb-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-indigo-500 animate-pulse" />
-              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 via-slate-300 to-slate-300 dark:from-slate-100 dark:to-slate-300 light:from-slate-900 light:to-slate-700 bg-clip-text text-transparent">
                 {getGreeting()}, {user?.name.split(" ")[0] || "Khushi"}!
               </h1>
             </div>
-            <p className="mt-1 text-sm text-slate-400 font-medium">
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-400 light:text-slate-650 font-medium">
               Ready to focus and level up your streaks today?
             </p>
           </div>
@@ -207,14 +207,14 @@ export default function DashboardPage() {
 
         {/* Today's Progress Bar */}
         {!loading && habits.length > 0 && (
-          <div className="rounded-2xl border border-slate-900 bg-slate-900/15 p-5 backdrop-blur-md">
+          <div className="rounded-2xl glass-card p-5 backdrop-blur-md">
             <div className="mb-2.5 flex items-center justify-between text-sm">
-              <span className="font-bold text-slate-300">Today's Habit Checklist</span>
+              <span className="font-bold text-slate-300 dark:text-slate-300 light:text-slate-700">Today's Habit Checklist</span>
               <span className="font-extrabold text-indigo-400">
                 {completedCount}/{totalCount} Done ({completionPercentage}%)
               </span>
             </div>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-950">
+            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-950 dark:bg-slate-950 light:bg-slate-200/80">
               <div
                 className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 shadow-[0_0_12px_rgba(99,102,241,0.55)] transition-all duration-500 ease-out"
                 style={{ width: `${completionPercentage}%` }}
@@ -232,21 +232,21 @@ export default function DashboardPage() {
           {loading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((n) => (
-                <div key={n} className="h-20 rounded-2xl border border-slate-900 bg-slate-950/20 animate-pulse" />
+                <div key={n} className="h-20 rounded-2xl border border-slate-800/10 dark:border-slate-900 light:border-slate-200 bg-slate-950/10 dark:bg-slate-950/20 light:bg-slate-100/40 animate-pulse" />
               ))}
             </div>
           ) : habits.length === 0 ? (
-            <div className="rounded-2xl border border-slate-800/60 bg-slate-900/10 p-10 text-center backdrop-blur-sm">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900/80 border border-slate-800">
+            <div className="rounded-2xl glass-card p-10 text-center backdrop-blur-sm">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900/30 dark:bg-slate-900/80 border border-slate-800/50 dark:border-slate-800">
                 <PlusCircle className="h-6 w-6 text-slate-500" />
               </div>
-              <h3 className="text-lg font-bold text-slate-350">No habits tracked yet</h3>
-              <p className="mt-1 text-xs text-slate-500 max-w-xs mx-auto leading-relaxed font-semibold">
+              <h3 className="text-lg font-bold text-slate-350 dark:text-slate-300 light:text-slate-850">No habits tracked yet</h3>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-500 light:text-slate-600 max-w-xs mx-auto leading-relaxed font-semibold">
                 Start your journey by adding a customized habit like "Drink Water", "Read books", or "Gym training".
               </p>
               <button
                 onClick={() => setCreateModalOpen(true)}
-                className="mt-5 rounded-xl bg-indigo-600/10 border border-indigo-500/30 px-5 py-2.5 text-xs font-bold text-indigo-400 hover:bg-indigo-650 hover:text-indigo-300 transition-all"
+                className="mt-5 rounded-xl bg-indigo-600/10 border border-indigo-500/30 px-5 py-2.5 text-xs font-bold text-indigo-400 dark:text-indigo-400 light:text-indigo-600 hover:bg-indigo-650 hover:text-indigo-300 transition-all"
               >
                 Create First Habit
               </button>
@@ -272,10 +272,10 @@ export default function DashboardPage() {
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCreateModalOpen(false)} />
           
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl z-10">
+          <div className="relative w-full max-w-md rounded-2xl glass-card bg-slate-950 dark:bg-slate-950 light:bg-white p-6 shadow-2xl z-10">
             <button
               onClick={() => setCreateModalOpen(false)}
-              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200"
+              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg glass-card text-slate-400 hover:text-slate-200"
             >
               <X className="h-4.5 w-4.5" />
             </button>
@@ -283,32 +283,32 @@ export default function DashboardPage() {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="h-5 w-5 text-indigo-400" />
-                <h3 className="text-lg font-bold text-slate-200">Create New Habit</h3>
+                <h3 className="text-lg font-bold text-slate-200 dark:text-slate-200 light:text-slate-800">Create New Habit</h3>
               </div>
               <p className="text-xs text-slate-500 font-semibold">Add a routine to track consistency and unlock badge rewards</p>
             </div>
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Habit Name</label>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-400 light:text-slate-650">Habit Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Read 15 pages, Workout..."
                   value={newHabitName}
                   onChange={(e) => setNewHabitName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl glass-input px-4 py-3 text-sm placeholder:text-slate-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Description (Optional)</label>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-400 light:text-slate-650">Description (Optional)</label>
                 <textarea
                   placeholder="Details to motivate you"
                   value={newHabitDesc}
                   onChange={(e) => setNewHabitDesc(e.target.value)}
                   rows={3}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none resize-none"
+                  className="w-full rounded-xl glass-input px-4 py-3 text-sm placeholder:text-slate-500 focus:outline-none resize-none"
                 />
               </div>
 
@@ -329,40 +329,40 @@ export default function DashboardPage() {
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setActiveEditHabit(null); }} />
           
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl z-10">
+          <div className="relative w-full max-w-md rounded-2xl glass-card bg-slate-950 dark:bg-slate-950 light:bg-white p-6 shadow-2xl z-10">
             <button
               onClick={() => { setEditModalOpen(false); setActiveEditHabit(null); }}
-              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200"
+              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg glass-card text-slate-400 hover:text-slate-200"
             >
               <X className="h-4.5 w-4.5" />
             </button>
 
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-200">Edit Habit Details</h3>
+              <h3 className="text-lg font-bold text-slate-200 dark:text-slate-200 light:text-slate-800">Edit Habit Details</h3>
               <p className="text-xs text-slate-500 font-semibold mt-1">Modify settings for {activeEditHabit.name}</p>
             </div>
 
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Habit Name</label>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-400 light:text-slate-650">Habit Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Read 15 pages"
                   value={editHabitName}
                   onChange={(e) => setEditHabitName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl glass-input px-4 py-3 text-sm placeholder:text-slate-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400">Description</label>
+                <label className="mb-1.5 block text-xs font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-400 light:text-slate-650">Description</label>
                 <textarea
                   placeholder="Details"
                   value={editHabitDesc}
                   onChange={(e) => setEditHabitDesc(e.target.value)}
                   rows={3}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none resize-none"
+                  className="w-full rounded-xl glass-input px-4 py-3 text-sm placeholder:text-slate-500 focus:outline-none resize-none"
                 />
               </div>
 
@@ -383,15 +383,15 @@ export default function DashboardPage() {
 
 function StatCard({ label, value, icon, subtitle }: { label: string; value: number | string; icon: React.ReactNode; subtitle: string }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-900 bg-slate-900/25 p-5 backdrop-blur-md shadow-sm transition-all duration-300 hover:border-slate-800 hover:shadow-[0_8px_20px_-8px_rgba(99,102,241,0.1)]">
+    <div className="group relative overflow-hidden rounded-2xl glass-card p-5 backdrop-blur-md shadow-sm transition-all duration-300 hover:border-slate-800/20 dark:hover:border-slate-800 light:hover:border-slate-300 hover:shadow-[0_8px_20px_-8px_rgba(99,102,241,0.1)]">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-extrabold text-slate-500 tracking-wider uppercase">{label}</span>
         {icon}
       </div>
-      <p className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight transition-transform duration-300 group-hover:scale-105 origin-left">
+      <p className="text-2xl sm:text-3xl font-extrabold text-slate-100 dark:text-slate-100 light:text-slate-800 tracking-tight transition-transform duration-300 group-hover:scale-105 origin-left">
         {value}
       </p>
-      <span className="text-[9px] text-slate-600 font-bold block mt-1 tracking-wider uppercase">{subtitle}</span>
+      <span className="text-[9px] text-slate-600 dark:text-slate-600 light:text-slate-500 font-bold block mt-1 tracking-wider uppercase">{subtitle}</span>
     </div>
   );
 }

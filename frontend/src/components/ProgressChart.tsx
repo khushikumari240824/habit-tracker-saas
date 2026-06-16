@@ -19,8 +19,8 @@ interface ProgressChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-xl border border-slate-800 bg-slate-950/90 p-3 shadow-xl backdrop-blur-md">
-        <p className="text-xs font-bold text-slate-400 mb-1.5">{label}</p>
+      <div className="rounded-xl glass-card p-3 shadow-xl">
+        <p className="text-xs font-bold theme-text-muted mb-1.5">{label}</p>
         {payload.map((pld: any) => (
           <p key={pld.name} className="text-xs font-bold flex items-center gap-1.5" style={{ color: pld.color }}>
             <span className="h-2 w-2 rounded-full" style={{ backgroundColor: pld.color }} />
@@ -72,18 +72,18 @@ export default function ProgressChart({ data, days = 30 }: ProgressChartProps) {
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="4 4" stroke="#1e293b" />
+          <CartesianGrid strokeDasharray="4 4" stroke="var(--border-subtle)" />
           <XAxis 
             dataKey="label" 
-            tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} 
-            axisLine={{ stroke: "#334155" }}
-            tickLine={{ stroke: "#334155" }}
+            tick={{ fontSize: 10, fill: "var(--text-secondary)", fontWeight: 600 }} 
+            axisLine={{ stroke: "var(--border-subtle)" }}
+            tickLine={{ stroke: "var(--border-subtle)" }}
             interval={Math.floor(days / 6)} 
           />
           <YAxis 
-            tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} 
-            axisLine={{ stroke: "#334155" }}
-            tickLine={{ stroke: "#334155" }}
+            tick={{ fontSize: 10, fill: "var(--text-secondary)", fontWeight: 600 }} 
+            axisLine={{ stroke: "var(--border-subtle)" }}
+            tickLine={{ stroke: "var(--border-subtle)" }}
             allowDecimals={false} 
           />
           <Tooltip content={<CustomTooltip />} />

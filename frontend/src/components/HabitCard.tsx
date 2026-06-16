@@ -52,7 +52,7 @@ export default function HabitCard({ habit, onUpdate, onDelete, onEdit }: HabitCa
   }
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/40 backdrop-blur-md p-5 shadow-lg shadow-black/20 hover:-translate-y-0.5 hover:border-slate-700/80 hover:shadow-[0_12px_30px_-8px_rgba(99,102,241,0.15)] active:scale-[0.99] transition-all duration-300">
+    <div className="group relative overflow-hidden rounded-2xl glass-card p-5 shadow-lg shadow-black/20 hover:-translate-y-0.5 hover:border-indigo-500/30 hover:shadow-[0_12px_30px_-8px_rgba(99,102,241,0.15)] active:scale-[0.99] transition-all duration-300">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
@@ -62,7 +62,7 @@ export default function HabitCard({ habit, onUpdate, onDelete, onEdit }: HabitCa
             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${
               habit.completedToday
                 ? "border-emerald-500/80 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.35)] scale-105"
-                : "border-slate-700 bg-slate-950/40 hover:border-indigo-500/80 hover:bg-slate-950/80"
+                : "border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-950/40 hover:border-indigo-500/80 light:hover:bg-slate-200 dark:hover:bg-slate-950/80"
             } ${loading ? "opacity-50" : ""}`}
           >
             {habit.completedToday ? (
@@ -76,12 +76,12 @@ export default function HabitCard({ habit, onUpdate, onDelete, onEdit }: HabitCa
 
           <div>
             <p className={`font-semibold text-base transition-all duration-300 ${
-              habit.completedToday ? "text-slate-400 line-through decoration-slate-600/60" : "text-slate-100"
+              habit.completedToday ? "text-slate-400 line-through decoration-slate-600/60" : "theme-text"
             }`}>
               {habit.name}
             </p>
             {habit.description && (
-              <p className="mt-0.5 text-xs text-slate-400 font-normal">{habit.description}</p>
+              <p className="mt-0.5 text-xs theme-text-muted font-normal">{habit.description}</p>
             )}
             {error && <p className="mt-1 text-xs font-medium text-red-400">{error}</p>}
           </div>

@@ -127,15 +127,15 @@ export default function AnalyticsPage() {
     <AppLayout>
       <div className="space-y-8 max-w-4xl mx-auto">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-900/60 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800/20 dark:border-slate-900/60 light:border-slate-200/80 pb-6">
           <div>
             <div className="flex items-center gap-2">
               <BarChart3 className="h-6 w-6 text-emerald-400" />
-              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 via-slate-300 to-slate-300 dark:from-slate-100 dark:to-slate-300 light:from-slate-900 light:to-slate-700 bg-clip-text text-transparent">
                 Analytics Report
               </h1>
             </div>
-            <p className="mt-1 text-sm text-slate-400 font-medium font-outfit">
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-400 light:text-slate-600 font-medium font-outfit">
               Deep dive into consistency stats, weekly averages, and history.
             </p>
           </div>
@@ -145,10 +145,10 @@ export default function AnalyticsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-28 rounded-2xl border border-slate-900 bg-slate-950/20 animate-pulse" />
+                <div key={n} className="h-28 rounded-2xl border border-slate-800/10 dark:border-slate-900 light:border-slate-200 bg-slate-950/10 dark:bg-slate-950/20 light:bg-slate-100/40 animate-pulse" />
               ))}
             </div>
-            <div className="h-64 rounded-2xl border border-slate-900 bg-slate-950/20 animate-pulse" />
+            <div className="h-64 rounded-2xl border border-slate-800/10 dark:border-slate-900 light:border-slate-200 bg-slate-950/10 dark:bg-slate-950/20 light:bg-slate-100/40 animate-pulse" />
           </div>
         ) : error ? (
           <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
@@ -171,7 +171,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* Heatmap Panel */}
-              <section className="lg:col-span-2 rounded-2xl border border-slate-900 bg-slate-900/15 p-6 backdrop-blur-md">
+              <section className="lg:col-span-2 rounded-2xl glass-card p-6 backdrop-blur-md">
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
                     <Calendar className="h-4 w-4 text-indigo-400" />
@@ -186,10 +186,10 @@ export default function AnalyticsPage() {
               <div className="flex flex-col gap-6">
                 
                 {/* Best Habit Card */}
-                <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/15 to-purple-950/10 p-5 backdrop-blur-md flex flex-col justify-between">
+                <div className="rounded-2xl glass-card border-indigo-500/20 bg-gradient-to-br from-indigo-950/15 to-purple-950/10 dark:from-indigo-950/15 dark:to-purple-950/10 light:from-indigo-500/5 light:to-purple-500/5 p-5 backdrop-blur-md flex flex-col justify-between">
                   <div>
                     <span className="text-[9px] font-extrabold text-indigo-400 uppercase tracking-widest block">Top Performer</span>
-                    <h3 className="text-base font-bold text-slate-200 mt-1 truncate">
+                    <h3 className="text-base font-bold text-slate-200 dark:text-slate-200 light:text-slate-800 mt-1 truncate">
                       {bestHabit ? bestHabit.name : "Morning Meditation 🧘"}
                     </h3>
                     <p className="text-[11px] text-slate-500 font-semibold mt-1">
@@ -205,13 +205,13 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* Habit consistency score meter */}
-                <div className="rounded-2xl border border-slate-900 bg-slate-900/15 p-5 backdrop-blur-md">
+                <div className="rounded-2xl glass-card p-5 backdrop-blur-md">
                   <p className="text-[9px] font-extrabold text-slate-500 uppercase tracking-wider">Consistency Rating</p>
                   <div className="flex items-baseline gap-2 mt-2">
                     <span className="text-3xl font-extrabold text-emerald-400">{consistencyScore}%</span>
                     <span className="text-[10px] font-bold text-slate-500">last 30 days</span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-slate-950 overflow-hidden mt-3.5">
+                  <div className="h-1.5 w-full rounded-full bg-slate-950 dark:bg-slate-950 light:bg-slate-200/80 overflow-hidden mt-3.5">
                     <div
                       className="h-full bg-gradient-to-r from-emerald-500 to-teal-500"
                       style={{ width: `${consistencyScore}%` }}
@@ -226,15 +226,15 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Daily Speed Line Chart */}
-              <section className="rounded-2xl border border-slate-900 bg-slate-900/15 p-6 backdrop-blur-md">
+              <section className="rounded-2xl glass-card p-6 backdrop-blur-md">
                 <h2 className="mb-4 text-xs font-extrabold text-slate-400 tracking-wider uppercase">
                   Daily Completion Velocity (30 days)
                 </h2>
                 <ProgressChart data={heatmap} days={30} />
               </section>
-
+ 
               {/* Monthly Trend Area Chart */}
-              <section className="rounded-2xl border border-slate-900 bg-slate-900/15 p-6 backdrop-blur-md">
+              <section className="rounded-2xl glass-card p-6 backdrop-blur-md">
                 <h2 className="mb-4 text-xs font-extrabold text-slate-400 tracking-wider uppercase">
                   Monthly Completions Trend
                 </h2>
@@ -247,16 +247,16 @@ export default function AnalyticsPage() {
                           <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} axisLine={{ stroke: "#334155" }} />
-                      <YAxis tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} axisLine={{ stroke: "#334155" }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} axisLine={{ stroke: "var(--border-subtle)" }} />
+                      <YAxis tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} axisLine={{ stroke: "var(--border-subtle)" }} />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "#020617",
-                          borderColor: "#1e293b",
+                          backgroundColor: "var(--input-bg)",
+                          borderColor: "var(--border-subtle)",
                           borderRadius: "12px",
                           fontSize: "12px",
-                          color: "#f1f5f9",
+                          color: "var(--text-primary)",
                         }}
                       />
                       <Area type="monotone" dataKey="completions" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#colorCompletions)" name="Completions" />
@@ -268,18 +268,18 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Progress Insights Panel */}
-            <section className="rounded-2xl border border-slate-900 bg-slate-900/15 p-6 backdrop-blur-md">
+            <section className="rounded-2xl glass-card p-6 backdrop-blur-md">
               <h2 className="mb-4 text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
                 <Sparkles className="h-4 w-4 text-amber-400" />
                 Intelligent Habits Insights
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {generateInsights().map((insight, index) => (
-                  <div key={index} className="flex gap-3 bg-slate-950/40 border border-slate-900/80 rounded-xl p-4">
+                  <div key={index} className="flex gap-3 glass-input rounded-xl p-4">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 text-[10px] font-bold">
                       💡
                     </span>
-                    <p className="text-xs text-slate-400 leading-relaxed font-semibold">{insight}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-650 leading-relaxed font-semibold">{insight}</p>
                   </div>
                 ))}
               </div>
@@ -294,7 +294,7 @@ export default function AnalyticsPage() {
 
 function StatCard({ label, value, icon, color }: { label: string; value: number | string; icon: React.ReactNode; color: string }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-900 bg-slate-900/25 p-5 backdrop-blur-md shadow-sm transition-all duration-300 hover:border-slate-800 hover:shadow-[0_8px_20px_-8px_rgba(99,102,241,0.1)]">
+    <div className="group relative overflow-hidden rounded-2xl glass-card p-5 backdrop-blur-md shadow-sm transition-all duration-300 hover:border-slate-800/20 dark:hover:border-slate-800 light:hover:border-slate-300 hover:shadow-[0_8px_20px_-8px_rgba(99,102,241,0.1)]">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-extrabold text-slate-500 tracking-wider uppercase">{label}</span>
         {icon}
