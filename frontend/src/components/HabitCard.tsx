@@ -51,47 +51,56 @@ export default function HabitCard({ habit, onUpdate, onDelete }: HabitCardProps)
   }
 
   return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={handleToggle}
-          disabled={loading}
-          aria-label={habit.completedToday ? "Mark incomplete" : "Mark complete"}
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
-            habit.completedToday
-              ? "border-green-500 bg-green-500 text-white"
-              : "border-gray-300 bg-white hover:border-green-400"
-          } ${loading ? "opacity-50" : ""}`}
-        >
-          {habit.completedToday && (
-            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          )}
-        </button>
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/40 backdrop-blur-md p-5 shadow-lg shadow-black/20 hover:-translate-y-0.5 hover:border-slate-700/80 hover:shadow-[0_12px_30px_-8px_rgba(99,102,241,0.15)] active:scale-[0.99] transition-all duration-300">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleToggle}
+            disabled={loading}
+            aria-label={habit.completedToday ? "Mark incomplete" : "Mark complete"}
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${
+              habit.completedToday
+                ? "border-emerald-500/80 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.35)] scale-105"
+                : "border-slate-700 bg-slate-950/40 hover:border-indigo-500/80 hover:bg-slate-950/80"
+            } ${loading ? "opacity-50" : ""}`}
+          >
+            {habit.completedToday ? (
+              <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5" stroke="currentColor" strokeWidth={3.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <div className="h-1.5 w-1.5 rounded-full bg-transparent group-hover:bg-indigo-500/50 transition-all duration-300" />
+            )}
+          </button>
 
-        <div>
-          <p className="font-medium text-gray-900">{habit.name}</p>
-          {habit.description && (
-            <p className="text-sm text-gray-500">{habit.description}</p>
-          )}
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          <div>
+            <p className={`font-semibold text-base transition-all duration-300 ${
+              habit.completedToday ? "text-slate-400 line-through decoration-slate-600/60" : "text-slate-100"
+            }`}>
+              {habit.name}
+            </p>
+            {habit.description && (
+              <p className="mt-0.5 text-xs text-slate-400 font-normal">{habit.description}</p>
+            )}
+            {error && <p className="mt-1 text-xs font-medium text-red-400">{error}</p>}
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-3">
-        <StreakBadge streak={habit.currentStreak} />
-        <button
-          onClick={handleDelete}
-          disabled={loading}
-          aria-label="Delete habit"
-          className="text-gray-400 hover:text-red-500"
-        >
-          <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-4">
+          <StreakBadge streak={habit.currentStreak} />
+          
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            aria-label="Delete habit"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+}

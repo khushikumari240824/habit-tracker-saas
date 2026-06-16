@@ -16,6 +16,23 @@ interface ProgressChartProps {
   days?: number;
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-xl border border-slate-800 bg-slate-950/90 p-3 shadow-xl backdrop-blur-md">
+        <p className="text-xs font-bold text-slate-400 mb-1.5">{label}</p>
+        {payload.map((pld: any) => (
+          <p key={pld.name} className="text-xs font-bold flex items-center gap-1.5" style={{ color: pld.color }}>
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: pld.color }} />
+            {pld.name}: {pld.value}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 /**
  * Line chart showing daily completion counts over the last `days` days,
  * with a rolling 7-day average to smooth out noise ("progress velocity").
@@ -37,7 +54,7 @@ export default function ProgressChart({ data, days = 30 }: ProgressChartProps) {
 
     series.push({
       date: dateStr,
-      label: `${d.getMonth() + 1}/${d.getDate()}`,
+      label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
       completions: countsByDate.get(dateStr) ?? 0,
       average: 0,
     });
@@ -52,31 +69,43 @@ export default function ProgressChart({ data, days = 30 }: ProgressChartProps) {
   }
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={series} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={Math.floor(days / 8)} />
-          <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-          <Tooltip />
+        <LineChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="4 4" stroke="#1e293b" />
+          <XAxis 
+            dataKey="label" 
+            tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} 
+            axisLine={{ stroke: "#334155" }}
+            tickLine={{ stroke: "#334155" }}
+            interval={Math.floor(days / 6)} 
+          />
+          <YAxis 
+            tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} 
+            axisLine={{ stroke: "#334155" }}
+            tickLine={{ stroke: "#334155" }}
+            allowDecimals={false} 
+          />
+          <Tooltip content={<CustomTooltip />} />
           <Line
             type="monotone"
             dataKey="completions"
-            stroke="#9ca3af"
-            strokeWidth={1.5}
-            dot={false}
-            name="Completions"
+            stroke="#6366f1"
+            strokeWidth={2}
+            dot={{ r: 3, fill: "#6366f1", strokeWidth: 0 }}
+            activeDot={{ r: 5, fill: "#818cf8" }}
+            name="Daily Completions"
           />
           <Line
             type="monotone"
             dataKey="average"
-            stroke="#2563eb"
-            strokeWidth={2}
+            stroke="#10b981"
+            strokeWidth={3}
             dot={false}
-            name="7-day avg"
+            name="7-Day Average"
           />
         </LineChart>
       </ResponsiveContainer>
     </div>
   );
-}
+}
