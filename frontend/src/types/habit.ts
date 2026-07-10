@@ -33,6 +33,25 @@ export interface SummaryStats {
   longestStreakOverall: number;
 }
 
+export interface NotificationPreferences {
+  inAppAlerts: boolean;
+  browserNotifications: boolean;
+  streakAlerts: boolean;
+  dailyReminders: boolean;
+  weeklyDigest: boolean;
+}
+
+export interface AppNotification {
+  id: string;
+  type: "success" | "warning" | "info";
+  title: string;
+  message: string;
+  createdAt: string;
+  read: boolean;
+  dedupeKey: string;
+  habitId?: number;
+}
+
 export interface AuthResponse {
   message: string;
   user: User;

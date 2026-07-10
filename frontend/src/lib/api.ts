@@ -1,4 +1,5 @@
 import { getToken, clearAuth, saveAuth, getUser } from "./auth";
+import { recordCompletionNotification } from "./notifications";
 import {
   AuthResponse,
   Habit,
@@ -690,7 +691,13 @@ export function toggleHabitLog(
       method: "POST",
       body: JSON.stringify({ date }),
     }
-  );
+  ).then((result) => {
+    if (result.completed && result.habit) {
+      recordCompletionNotification(result.habit, date);
+    }
+
+    return result;
+  });
 }
 
 export function getHabitLogs(habitId: number): Promise<{ logs: HabitLog[] }> {

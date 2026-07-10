@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import AppLayout from "@/components/AppLayout";
 import { clearAuth } from "@/lib/auth";
 import {
+  getNotificationPreferences,
+  setNotificationPreferences,
+  requestBrowserNotificationPermission,
+} from "@/lib/notifications";
+import {
   Settings,
   Bell,
   SunMoon,
@@ -24,6 +29,15 @@ export default function SettingsPage() {
     if (typeof window !== "undefined") {
       const initialTheme = (localStorage.getItem("theme_preference") as "dark" | "light") || "dark";
       setTheme(initialTheme);
+      const preferences = getNotificationPreferences();
+      setNotifications({
+        inAppAlerts: preferences.inAppAlerts,
+        browserNotifications: preferences.browserNotifications,
+        emailReminder: preferences.dailyReminders,
+        weeklyReport: preferences.weeklyDigest,
+        streakAlerts: preferences.streakAlerts,
+        dailyReminders: preferences.dailyReminders,
+      });
     }
   }, []);
 
@@ -40,9 +54,12 @@ export default function SettingsPage() {
   };
 
   const [notifications, setNotifications] = useState({
+    inAppAlerts: true,
+    browserNotifications: false,
     emailReminder: true,
     weeklyReport: false,
     streakAlerts: true,
+    dailyReminders: true,
   });
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -50,10 +67,39 @@ export default function SettingsPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   function toggleNotification(key: keyof typeof notifications) {
-    setNotifications((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setNotifications((prev) => {
+      const next = {
+        ...prev,
+        [key]: !prev[key],
+      };
+
+      setNotificationPreferences({
+        inAppAlerts: next.inAppAlerts,
+        browserNotifications: next.browserNotifications,
+        streakAlerts: next.streakAlerts,
+        dailyReminders: next.dailyReminders,
+        weeklyDigest: next.weeklyReport,
+      });
+
+      return next;
+    });
+  }
+
+  async function enableBrowserNotifications() {
+    const permission = await requestBrowserNotificationPermission();
+    if (permission === "granted") {
+      setNotifications((prev) => {
+        const next = { ...prev, browserNotifications: true };
+        setNotificationPreferences({
+          inAppAlerts: next.inAppAlerts,
+          browserNotifications: next.browserNotifications,
+          streakAlerts: next.streakAlerts,
+          dailyReminders: next.dailyReminders,
+          weeklyDigest: next.weeklyReport,
+        });
+        return next;
+      });
+    }
   }
 
   function handleSavePreferences() {
@@ -154,13 +200,39 @@ export default function SettingsPage() {
           <div className="space-y-4 border-t border-slate-800/10 dark:border-slate-900/60 light:border-slate-200/80 pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-bold theme-text">Daily Email Reminders</p>
-                <p className="text-xs theme-text-muted font-semibold mt-0.5">Receive a message if habits remain uncompleted by 8:00 PM</p>
+                <p className="text-sm font-bold theme-text">In-app Notification Feed</p>
+                <p className="text-xs theme-text-muted font-semibold mt-0.5">Show streak warnings and habit completions in the header panel</p>
               </div>
               <input
                 type="checkbox"
-                checked={notifications.emailReminder}
-                onChange={() => toggleNotification("emailReminder")}
+                checked={notifications.inAppAlerts}
+                onChange={() => toggleNotification("inAppAlerts")}
+                className="h-4 w-4 rounded border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+              />
+            </div>
+
+            <div className="flex items-center justify-between border-t border-slate-800/10 dark:border-slate-900/40 light:border-slate-200/60 pt-4">
+              <div>
+                <p className="text-sm font-bold theme-text">Browser Notifications</p>
+                <p className="text-xs theme-text-muted font-semibold mt-0.5">Receive real-time desktop prompts for completions and at-risk streaks</p>
+              </div>
+              <button
+                onClick={enableBrowserNotifications}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all ${notifications.browserNotifications ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"}`}
+              >
+                {notifications.browserNotifications ? "Enabled" : "Enable"}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-bold theme-text">Daily Reminder Window</p>
+                <p className="text-xs theme-text-muted font-semibold mt-0.5">Show evening reminders when habits are still incomplete</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={notifications.dailyReminders}
+                onChange={() => toggleNotification("dailyReminders")}
                 className="h-4 w-4 rounded border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
               />
             </div>

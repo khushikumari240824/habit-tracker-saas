@@ -19,7 +19,15 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { isAuthenticated, getUser, clearAuth } from "@/lib/auth";
-import { getMockProfile } from "@/lib/api";
+import { getMockProfile, getHabits } from "@/lib/api";
+import { getLocalDateString } from "@/lib/auth";
+import {
+  getNotifications,
+  markNotificationsRead,
+  notificationEvents,
+  syncNotificationCenter,
+  type AppNotification,
+} from "@/lib/notifications";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -33,6 +41,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [loading, setLoading] = useState(true);
   const [xpData, setXpData] = useState({ xp: 150, level: 2 });
   const [avatar, setAvatar] = useState("/avatars/avatar-1.png");
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const notificationRef = useRef<HTMLDivElement>(null);
   
   const [theme, setThemeState] = useState<"dark" | "light">("dark");
@@ -56,12 +65,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
       }
     }
   };
-
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "🔥 Great job! You maintained your meditation streak today.", time: "1 hour ago", read: false },
-    { id: 2, text: "🏆 Achievement Unlocked: Streak Starter!", time: "Yesterday", read: false },
-    { id: 3, text: "⚡ Pro-Tip: Adding descriptions to habits increases follow-through by 40%.", time: "2 days ago", read: true },
-  ]);
 
   const user = getUser();
 
@@ -90,6 +93,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
       setAvatar(profile.avatar || "/avatars/avatar-1.png");
     }
 
+    const loadNotifications = async () => {
+      try {
+        const { habits } = await getHabits(getLocalDateString());
+        syncNotificationCenter(habits);
+        setNotifications(getNotifications());
+      } catch {
+        setNotifications(getNotifications());
+      }
+    };
+
+    loadNotifications();
+
     // Set up a listener for profile updates (so if profile/xp changes, layout reacts)
     const handleStorageChange = () => {
       const p = getMockProfile();
@@ -98,13 +113,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
         setAvatar(p.avatar || "/avatars/avatar-1.png");
       }
     };
+
+    const handleNotificationsChanged = () => {
+      setNotifications(getNotifications());
+    };
+
     window.addEventListener("storage", handleStorageChange);
+    window.addEventListener(notificationEvents.notificationsUpdated, handleNotificationsChanged);
+    window.addEventListener(notificationEvents.preferencesUpdated, handleNotificationsChanged);
     // Poll to keep it reactive (since storage event doesn't fire on same tab in all browsers)
     const interval = setInterval(handleStorageChange, 1000);
+    const notificationInterval = setInterval(loadNotifications, 60000);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener(notificationEvents.notificationsUpdated, handleNotificationsChanged);
+      window.removeEventListener(notificationEvents.preferencesUpdated, handleNotificationsChanged);
       clearInterval(interval);
+      clearInterval(notificationInterval);
     };
   }, [router]);
 
@@ -143,7 +169,31 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    markNotificationsRead();
+    setNotifications(getNotifications());
+  };
+
+  const formatRelativeTime = (timestamp: string) => {
+    const diff = Date.now() - new Date(timestamp).getTime();
+    const minutes = Math.max(1, Math.floor(diff / 60000));
+
+    if (minutes < 60) {
+      return `${minutes}m ago`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `${hours}h ago`;
+    }
+
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
+  const notificationTone = (type: AppNotification["type"]) => {
+    if (type === "warning") return "border-amber-500/20 bg-amber-500/5 text-amber-300";
+    if (type === "success") return "border-emerald-500/20 bg-emerald-500/5 text-emerald-300";
+    return "border-indigo-500/20 bg-indigo-500/5 text-indigo-300";
   };
 
   return (
@@ -283,19 +333,33 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     </div>
 
                     <div className="space-y-3 max-h-60 overflow-y-auto">
-                      {notifications.map((n) => (
-                        <div
-                          key={n.id}
-                          className={`p-2.5 rounded-xl border transition-colors ${
-                            n.read 
-                              ? "bg-slate-900/10 dark:bg-slate-900/10 light:bg-slate-100/40 border-transparent" 
-                              : "bg-indigo-600/5 dark:bg-indigo-600/5 light:bg-indigo-500/5 border-indigo-500/20"
-                          }`}
-                        >
-                          <p className="text-xs text-slate-350 dark:text-slate-300 light:text-slate-700 font-medium leading-normal">{n.text}</p>
-                          <span className="text-[9px] text-slate-500 font-semibold mt-1 block">{n.time}</span>
+                      {notifications.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-slate-800/40 px-4 py-5 text-center text-xs text-slate-500">
+                          No alerts yet. Your streak warnings and reminders will appear here.
                         </div>
-                      ))}
+                      ) : (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`rounded-xl border p-3 transition-colors ${notification.read ? "border-slate-800/20 bg-slate-900/10" : notificationTone(notification.type)}`}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-xs font-semibold text-slate-200 dark:text-slate-200 light:text-slate-800 leading-normal">
+                                {notification.title}
+                              </p>
+                              {!notification.read && (
+                                <span className="h-2 w-2 rounded-full bg-indigo-400 shrink-0" />
+                              )}
+                            </div>
+                            <p className="mt-1 text-xs text-slate-400 dark:text-slate-400 light:text-slate-600 leading-relaxed">
+                              {notification.message}
+                            </p>
+                            <span className="mt-2 block text-[10px] font-semibold text-slate-500">
+                              {formatRelativeTime(notification.createdAt)}
+                            </span>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </motion.div>
                 )}
