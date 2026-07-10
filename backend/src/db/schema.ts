@@ -7,6 +7,7 @@ import {
   date,
   timestamp,
   boolean,
+  jsonb,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
@@ -19,6 +20,7 @@ export const users = pgTable("users", {
   name: varchar("name", { length: 100 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  notificationPreferences: jsonb("notification_preferences").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

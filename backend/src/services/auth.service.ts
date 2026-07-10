@@ -6,6 +6,14 @@ import { signToken } from "../utils/jwt";
 import { RegisterInput, LoginInput } from "../validators/auth.validator";
 
 const SALT_ROUNDS = 10;
+const DEFAULT_NOTIFICATION_PREFERENCES = {
+  inAppAlerts: true,
+  browserNotifications: false,
+  streakAlerts: true,
+  dailyReminders: true,
+  weeklyDigest: true,
+  lastWeeklyDigestKey: null,
+};
 
 export class AuthError extends Error {
   statusCode: number;
@@ -34,11 +42,17 @@ export async function registerUser(input: RegisterInput) {
 
   const [newUser] = await db
     .insert(users)
-    .values({ name, email, passwordHash })
+    .values({
+      name,
+      email,
+      passwordHash,
+      notificationPreferences: DEFAULT_NOTIFICATION_PREFERENCES,
+    })
     .returning({
       id: users.id,
       name: users.name,
       email: users.email,
+      notificationPreferences: users.notificationPreferences,
       createdAt: users.createdAt,
     });
 
@@ -79,6 +93,7 @@ export async function loginUser(input: LoginInput) {
       id: existingUser.id,
       name: existingUser.name,
       email: existingUser.email,
+      notificationPreferences: existingUser.notificationPreferences,
       createdAt: existingUser.createdAt,
     },
     token,

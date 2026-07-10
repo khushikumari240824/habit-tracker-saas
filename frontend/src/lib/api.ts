@@ -1,5 +1,9 @@
 import { getToken, clearAuth, saveAuth, getUser } from "./auth";
-import { recordCompletionNotification } from "./notifications";
+import {
+  getNotificationPreferences as getLocalNotificationPreferences,
+  recordCompletionNotification,
+  setNotificationPreferences as setLocalNotificationPreferences,
+} from "./notifications";
 import {
   AuthResponse,
   Habit,
@@ -30,6 +34,7 @@ const MOCK_USERS_KEY = "mock_users";
 const MOCK_HABITS_KEY = "mock_habits";
 const MOCK_LOGS_KEY = "mock_logs";
 const MOCK_PROFILE_KEY = "mock_profile"; // For XP, Level, Badges, Avatar
+const MOCK_NOTIFICATION_PREFS_KEY = "mock_notification_preferences";
 
 // Helper to seed initial demo data so the app looks premium on first load
 function seedMockData() {
@@ -55,6 +60,11 @@ function seedMockData() {
         badges: ["First Step", "Streak Starter"],
         avatar: "/avatars/avatar-1.png",
       })
+    );
+
+    localStorage.setItem(
+      MOCK_NOTIFICATION_PREFS_KEY,
+      JSON.stringify(getLocalNotificationPreferences())
     );
 
     // Seed initial habits
@@ -557,6 +567,23 @@ async function handleMockRequest<T>(path: string, options: RequestInit = {}): Pr
     return { stats } as unknown as T;
   }
 
+  // Notifications: Preferences
+  if (cleanPath === "/notifications/preferences" && method === "GET") {
+    const prefs = getLocalItem(MOCK_NOTIFICATION_PREFS_KEY, getLocalNotificationPreferences());
+    return { notificationPreferences: prefs } as unknown as T;
+  }
+
+  if (cleanPath === "/notifications/preferences" && method === "PATCH") {
+    const current = getLocalItem(MOCK_NOTIFICATION_PREFS_KEY, getLocalNotificationPreferences());
+    const next = {
+      ...current,
+      ...body,
+    };
+    setLocalItem(MOCK_NOTIFICATION_PREFS_KEY, next);
+    setLocalNotificationPreferences(next);
+    return { message: "Notification preferences updated", notificationPreferences: next } as unknown as T;
+  }
+
   throw new ApiError("Mock endpoint not found", 404);
 }
 
@@ -712,6 +739,59 @@ export function getHeatmap(days: number = 365): Promise<{ heatmap: HeatmapEntry[
 
 export function getSummary(): Promise<{ stats: SummaryStats }> {
   return request<{ stats: SummaryStats }>("/analytics/summary");
+}
+
+export function getNotificationPreferences(): Promise<{
+  notificationPreferences: {
+    inAppAlerts: boolean;
+    browserNotifications: boolean;
+    streakAlerts: boolean;
+    dailyReminders: boolean;
+    weeklyDigest: boolean;
+    lastWeeklyDigestKey?: string | null;
+  };
+}> {
+  return request<{ notificationPreferences: {
+    inAppAlerts: boolean;
+    browserNotifications: boolean;
+    streakAlerts: boolean;
+    dailyReminders: boolean;
+    weeklyDigest: boolean;
+    lastWeeklyDigestKey?: string | null;
+  } }>("/notifications/preferences");
+}
+
+export function updateNotificationPreferences(input: {
+  inAppAlerts?: boolean;
+  browserNotifications?: boolean;
+  streakAlerts?: boolean;
+  dailyReminders?: boolean;
+  weeklyDigest?: boolean;
+}): Promise<{
+  message: string;
+  notificationPreferences: {
+    inAppAlerts: boolean;
+    browserNotifications: boolean;
+    streakAlerts: boolean;
+    dailyReminders: boolean;
+    weeklyDigest: boolean;
+    lastWeeklyDigestKey?: string | null;
+  };
+}> {
+  return request<{
+    message: string;
+    notificationPreferences: {
+      inAppAlerts: boolean;
+      browserNotifications: boolean;
+      streakAlerts: boolean;
+      dailyReminders: boolean;
+      weeklyDigest: boolean;
+      lastWeeklyDigestKey?: string | null;
+    };
+  }>("/notifications/preferences", {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
 }
 
 export { ApiError };

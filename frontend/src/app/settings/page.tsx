@@ -5,9 +5,13 @@ import { useRouter } from "next/navigation";
 import AppLayout from "@/components/AppLayout";
 import { clearAuth } from "@/lib/auth";
 import {
-  getNotificationPreferences,
-  setNotificationPreferences,
+  getNotificationPreferences as getServerNotificationPreferences,
+  updateNotificationPreferences,
+} from "@/lib/api";
+import {
+  getNotificationPreferences as getLocalNotificationPreferences,
   requestBrowserNotificationPermission,
+  setNotificationPreferences as setLocalNotificationPreferences,
 } from "@/lib/notifications";
 import {
   Settings,
@@ -26,19 +30,38 @@ export default function SettingsPage() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const initialTheme = (localStorage.getItem("theme_preference") as "dark" | "light") || "dark";
-      setTheme(initialTheme);
-      const preferences = getNotificationPreferences();
-      setNotifications({
-        inAppAlerts: preferences.inAppAlerts,
-        browserNotifications: preferences.browserNotifications,
-        emailReminder: preferences.dailyReminders,
-        weeklyReport: preferences.weeklyDigest,
-        streakAlerts: preferences.streakAlerts,
-        dailyReminders: preferences.dailyReminders,
-      });
-    }
+    if (typeof window === "undefined") return;
+
+    const initialTheme = (localStorage.getItem("theme_preference") as "dark" | "light") || "dark";
+    setTheme(initialTheme);
+
+    const loadPreferences = async () => {
+      try {
+        const response = await getServerNotificationPreferences();
+        const preferences = response.notificationPreferences;
+        setLocalNotificationPreferences(preferences);
+        setNotifications({
+          inAppAlerts: preferences.inAppAlerts,
+          browserNotifications: preferences.browserNotifications,
+          emailReminder: preferences.dailyReminders,
+          weeklyReport: preferences.weeklyDigest,
+          streakAlerts: preferences.streakAlerts,
+          dailyReminders: preferences.dailyReminders,
+        });
+      } catch {
+        const preferences = getLocalNotificationPreferences();
+        setNotifications({
+          inAppAlerts: preferences.inAppAlerts,
+          browserNotifications: preferences.browserNotifications,
+          emailReminder: preferences.dailyReminders,
+          weeklyReport: preferences.weeklyDigest,
+          streakAlerts: preferences.streakAlerts,
+          dailyReminders: preferences.dailyReminders,
+        });
+      }
+    };
+
+    loadPreferences();
   }, []);
 
   const changeTheme = (newTheme: "dark" | "light") => {
@@ -73,7 +96,7 @@ export default function SettingsPage() {
         [key]: !prev[key],
       };
 
-      setNotificationPreferences({
+      setLocalNotificationPreferences({
         inAppAlerts: next.inAppAlerts,
         browserNotifications: next.browserNotifications,
         streakAlerts: next.streakAlerts,
@@ -90,7 +113,7 @@ export default function SettingsPage() {
     if (permission === "granted") {
       setNotifications((prev) => {
         const next = { ...prev, browserNotifications: true };
-        setNotificationPreferences({
+        setLocalNotificationPreferences({
           inAppAlerts: next.inAppAlerts,
           browserNotifications: next.browserNotifications,
           streakAlerts: next.streakAlerts,
@@ -102,9 +125,21 @@ export default function SettingsPage() {
     }
   }
 
-  function handleSavePreferences() {
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2000);
+  async function handleSavePreferences() {
+    try {
+      await updateNotificationPreferences({
+        inAppAlerts: notifications.inAppAlerts,
+        browserNotifications: notifications.browserNotifications,
+        streakAlerts: notifications.streakAlerts,
+        dailyReminders: notifications.dailyReminders,
+        weeklyDigest: notifications.weeklyReport,
+      });
+
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch {
+      setSaveSuccess(false);
+    }
   }
 
   function handleClearData() {

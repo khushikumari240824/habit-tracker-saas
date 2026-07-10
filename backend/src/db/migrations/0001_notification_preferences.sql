@@ -1,0 +1,2 @@
+ALTER TABLE "users"
+ADD COLUMN "notification_preferences" jsonb NOT NULL DEFAULT '{"inAppAlerts":true,"browserNotifications":false,"streakAlerts":true,"dailyReminders":true,"weeklyDigest":true,"lastWeeklyDigestKey":null}'::jsonb;

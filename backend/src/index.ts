@@ -7,6 +7,8 @@ import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
 import habitRoutes from "./routes/habit.routes";
 import logRoutes from "./routes/log.routes";
 import analyticsRoutes from "./routes/analytics.routes";
+import notificationRoutes from "./routes/notification.routes";
+import { runWeeklyDigestSweep } from "./services/notification.service";
 
 dotenv.config();
 
@@ -22,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/notifications", notificationRoutes);
 // ----------------------
 // Health Check
 // ----------------------
@@ -48,6 +51,20 @@ async function start() {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
+
+  const runDigestJob = async () => {
+    try {
+      const result = await runWeeklyDigestSweep();
+      if (result.ran) {
+        console.log(`📬 Weekly digest sweep complete. Emails sent: ${result.sent}`);
+      }
+    } catch (error) {
+      console.error("Weekly digest sweep failed:", error);
+    }
+  };
+
+  await runDigestJob();
+  setInterval(runDigestJob, 60 * 1000);
 }
 
 start();
