@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { and, eq, gte, inArray } from "drizzle-orm";
 import { db } from "../config/db";
 import { habitLogs, habits, users } from "../db/schema";
@@ -245,7 +244,7 @@ function buildDigestEmail(recipient: DigestRecipient, summary: DigestSummary) {
   return { subject, text, html };
 }
 
-function createTransport() {
+async function createTransport() {
   const host = process.env.SMTP_HOST;
   const port = Number.parseInt(process.env.SMTP_PORT ?? "587", 10);
   const user = process.env.SMTP_USER;
@@ -255,16 +254,26 @@ function createTransport() {
     return null;
   }
 
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
-  });
+  try {
+    const nodemailerModule = await import("nodemailer");
+    const nodemailer = nodemailerModule.default ?? nodemailerModule;
+
+    return nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+    });
+  } catch (error) {
+    console.warn("[digest-email] Nodemailer is unavailable, skipping email delivery", {
+      error,
+    });
+    return null;
+  }
 }
 
 async function sendEmail(to: string, subject: string, text: string, html: string) {
-  const transporter = createTransport();
+  const transporter = await createTransport();
 
   if (!transporter) {
     console.log("[digest-email] SMTP not configured, skipping send", { to, subject, text });
